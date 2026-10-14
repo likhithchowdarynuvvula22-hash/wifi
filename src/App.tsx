@@ -28,6 +28,9 @@ const App: React.FC = () => {
   // ── Auto-Pilot Closed-Loop Autonomous Mode ──────────────────────────────────
   const [autoPilot, setAutoPilot] = useState<boolean>(false);
 
+  // ── Efficiency Speed Mode (Turbo = 300ms vs Realistic = 1500ms) ─────────────
+  const [turboMode, setTurboMode] = useState<boolean>(true);
+
   // ── Active scenario ──────────────────────────────────────────────────────────
   const [selectedScenario, setSelectedScenario] = useState<Scenario>('A');
 
@@ -85,7 +88,7 @@ const App: React.FC = () => {
     setDevices(DEVICES);
   }, []);
 
-  // ── Run diagnosis ─────────────────────────────────────────────────────────────
+  // ── Run diagnosis with high-efficiency duration ─────────────────────────────
   const handleRunDiagnosis = useCallback(() => {
     // Capture before-metrics at the time diagnosis is triggered,
     // using current scenario baseline (not any lingering afterMetrics)
@@ -94,14 +97,15 @@ const App: React.FC = () => {
     setSimulation({ phase: 'diagnosing' });
     setActiveSection('diagnosis');
 
+    const diagDelay = turboMode ? 350 : 1500;
     setTimeout(() => {
       const result = runDiagnosis(selectedScenario);
       setDiagnosis(result);
       setSimulation({ phase: 'diagnosed' });
-    }, 2000);
-  }, [selectedScenario]);
+    }, diagDelay);
+  }, [selectedScenario, turboMode]);
 
-  // ── Apply action ─────────────────────────────────────────────────────────────
+  // ── Apply action with high-efficiency pipeline ──────────────────────────────
   const handleApplyAction = useCallback(() => {
     if (!diagnosis) return;
 
@@ -110,6 +114,7 @@ const App: React.FC = () => {
 
     setSimulation((prev) => ({ ...prev, phase: 'applying' }));
 
+    const stepDelay = turboMode ? 280 : 1200;
     setTimeout(() => {
       setSimulation((prev) => ({ ...prev, phase: 'verifying' }));
 
@@ -143,9 +148,9 @@ const App: React.FC = () => {
         };
 
         setActionHistory((prev) => [...prev, entry]);
-      }, 1500);
-    }, 1500);
-  }, [diagnosis, selectedScenario]);
+      }, stepDelay);
+    }, stepDelay);
+  }, [diagnosis, selectedScenario, turboMode]);
 
   // ── Reset simulation (Diagnosis panel button) ─────────────────────────────────
   const handleResetSimulation = useCallback(() => {
@@ -263,6 +268,30 @@ const App: React.FC = () => {
                 }}
               />
               Auto-Pilot: {autoPilot ? 'ACTIVE' : 'OFF'}
+            </button>
+
+            {/* Efficiency / Turbo Speed Toggle */}
+            <button
+              id="turbo-toggle-btn"
+              onClick={() => setTurboMode((prev) => !prev)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                border: turboMode ? '1px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.2)',
+                background: turboMode ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                color: turboMode ? '#38bdf8' : '#cbd5e1',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Toggle Sub-Second Turbo Execution Speed (Efficiency Mode)"
+            >
+              <span>⚡</span>
+              <span>Turbo: {turboMode ? 'ON (0.3s)' : 'REAL (1.5s)'}</span>
             </button>
 
             <div className="scenario-indicator">
