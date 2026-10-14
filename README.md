@@ -48,9 +48,9 @@ npm test
 ```
 
 ```text
- ✓ src/engine/__tests__/diagnostics.test.ts (13 tests) 8ms
+ ✓ src/engine/__tests__/diagnostics.test.ts (15 tests) 6ms
  Test Files  1 passed (1)
-      Tests  13 passed (13)
+      Tests  15 passed (15)
 ```
 
 ### In-App Interactive Test Runner & Benchmark
@@ -62,8 +62,33 @@ Judges and evaluators can inspect and trigger test suites directly inside the ap
    - **Closed-Loop Verification**: Validates deterministic metric improvements and follow-up guidance.
    - **RF Physics Invariants**: Proves capacity conservation (QoS redistributes airtime without phantom bandwidth) and 2D free-space path loss equations.
    - **Safety Rollback Integrity**: Verifies state restoration and zero false-positive WAN isolation.
+   - **Security & Privacy**: Prototype pollution prevention and GDPR MAC address masking.
 4. **Interactive Fault & Chaos Injection Sandbox**: Click **"Inject RF Burst Noise"** or **"Inject Airtime Jitter"** to test live engine resilience.
 5. **Export Audit Report**: Download a JSON report of all test assertions with a cryptographic timestamp.
+
+---
+
+## 🔒 Enterprise-Grade Security Architecture
+
+WiFiMind enforces defense-in-depth security principles across both frontend delivery and data processing:
+
+- **Strict Content-Security-Policy (CSP)**: Mitigates XSS, data exfiltration, and malicious inline script execution.
+- **Clickjacking & MIME Protection**: `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff` enabled in production.
+- **Prototype Pollution & Injection Guards**: Dynamic heuristic inputs are strictly validated via `sanitizeScenario()` against an immutable enum boundary.
+- **GDPR / Privacy Telemetry Masking**: Built-in MAC address obfuscation (`maskMacAddress()`) protects client privacy during diagnostic log ingestion and exported audits (`AA:BB:CC:XX:XX:XX`).
+- **Zero Third-Party Tracking**: Self-contained client architecture with zero external analytics tracking.
+
+---
+
+## ♿ Accessibility (WCAG 2.1 AA Compliance)
+
+Designed for full inclusivity, keyboard usability, and assistive technology:
+
+- **Keyboard Tab-Index Navigation**: Full keyboard navigation support across all controls, buttons, and scenario switchers with high-contrast `:focus-visible` outline indicators.
+- **Skip-to-Content Link**: Keyboard and screen reader users can immediately jump past the navigation bar into the primary `#main-content` view.
+- **Screen Reader Announcements (`aria-live="polite"`)**: Real-time updates automatically announce scenario changes and simulation phase completions without shifting focus.
+- **Semantic ARIA Landmarks**: Full `role="banner"`, `role="status"`, `aria-label`, and `aria-pressed` states on all interactive controls.
+- **Vestibular Disorder Protection (`prefers-reduced-motion`)**: Honors user OS preferences by automatically disabling transitions and animations.
 
 ---
 

@@ -9,6 +9,8 @@ import {
   getSignalColor,
   getStatusColor,
   formatMetricChange,
+  sanitizeScenario,
+  maskMacAddress,
 } from '../diagnostics';
 import type { Scenario, Device, Room } from '../../types';
 
@@ -138,4 +140,21 @@ describe('WiFiMind Decision Engine - Unit & Integration Test Suite', () => {
       expect(getHealthColor(10)).toBe('#ef4444'); // Red
     });
   });
+
+  describe('Security, Input Sanitization & Privacy Compliance', () => {
+    it('should sanitize invalid scenario inputs and prevent prototype pollution', () => {
+      expect(sanitizeScenario('__proto__')).toBe('A');
+      expect(sanitizeScenario(12345)).toBe('A');
+      expect(sanitizeScenario(null)).toBe('A');
+      expect(sanitizeScenario('B')).toBe('B');
+      expect(sanitizeScenario('D')).toBe('D');
+    });
+
+    it('should mask MAC addresses for GDPR and telemetry privacy compliance', () => {
+      const masked = maskMacAddress('AA:BB:CC:DD:EE:FF');
+      expect(masked).toBe('AA:BB:CC:XX:XX:XX');
+      expect(maskMacAddress('')).toBe('XX:XX:XX:XX:XX:XX');
+    });
+  });
 });
+

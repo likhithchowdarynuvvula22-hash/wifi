@@ -222,10 +222,20 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
+      {/* WCAG Skip-to-content accessible link */}
+      <a href="#main-content" className="skip-link">
+        Skip to main dashboard content
+      </a>
+
+      {/* Screen Reader Live Announcement Region */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        Active scenario: Scenario {selectedScenario}. Simulation state: {simulation.phase}.
+      </div>
+
       <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
-      <main className="main-content">
+      <main id="main-content" className="main-content" tabIndex={-1} aria-label="WiFiMind Dashboard Content">
         {/* Top bar */}
-        <header className="top-bar">
+        <header className="top-bar" role="banner">
           <div className="top-bar-left">
             <h1 className="page-title">
               {activeSection === 'overview' && 'Network Overview'}
@@ -242,6 +252,8 @@ const App: React.FC = () => {
             <button
               id="autopilot-toggle-btn"
               onClick={() => setAutoPilot((prev) => !prev)}
+              aria-label={`Toggle Autonomous Auto-Pilot. Currently ${autoPilot ? 'Active' : 'Off'}`}
+              aria-pressed={autoPilot}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -274,6 +286,8 @@ const App: React.FC = () => {
             <button
               id="turbo-toggle-btn"
               onClick={() => setTurboMode((prev) => !prev)}
+              aria-label={`Toggle execution speed mode. Currently ${turboMode ? 'Turbo fast mode 0.3s' : 'Realistic mode 1.5s'}`}
+              aria-pressed={turboMode}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -294,7 +308,7 @@ const App: React.FC = () => {
               <span>Turbo: {turboMode ? 'ON (0.3s)' : 'REAL (1.5s)'}</span>
             </button>
 
-            <div className="scenario-indicator">
+            <div className="scenario-indicator" role="status" aria-label={`Current active scenario: Scenario ${selectedScenario}`}>
               <span className="scenario-indicator-dot" />
               Active: Scenario {selectedScenario}
             </div>
@@ -303,6 +317,7 @@ const App: React.FC = () => {
                 id="global-reset-btn"
                 className="reset-btn"
                 onClick={handleFullReset}
+                aria-label="Reset simulation to initial state and clear applied actions"
                 title="Reset simulation and restore all defaults"
               >
                 ↺ Reset All

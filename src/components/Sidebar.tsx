@@ -33,21 +33,23 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate }) => {
         </div>
       </div>
 
-      <div className="sidebar-section-label">NAVIGATION</div>
-      <nav className="sidebar-nav">
+      <div className="sidebar-section-label" id="nav-heading">NAVIGATION</div>
+      <nav className="sidebar-nav" aria-labelledby="nav-heading" aria-label="Main Application Navigation">
         {navItems.map((item) => (
           <button
             key={item.id}
             id={`nav-${item.id}`}
             className={`nav-item ${activeSection === item.id ? 'active' : ''}`}
             onClick={() => onNavigate(item.id)}
+            aria-current={activeSection === item.id ? 'page' : undefined}
+            aria-label={`${item.label} — ${item.description}`}
           >
-            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-icon" aria-hidden="true">{item.icon}</span>
             <div className="nav-text">
               <span className="nav-label">{item.label}</span>
               <span className="nav-desc">{item.description}</span>
             </div>
-            {activeSection === item.id && <span className="nav-indicator" />}
+            {activeSection === item.id && <span className="nav-indicator" aria-hidden="true" />}
           </button>
         ))}
       </nav>

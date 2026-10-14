@@ -1,16 +1,38 @@
 import type { Scenario, NetworkMetrics, DiagnosisResult, VerificationStatus, Device, Room } from '../types';
 import { SCENARIO_METRICS, SCENARIO_AFTER_METRICS, DIAGNOSIS_RESULTS } from '../data/mockData';
 
+// ─── Security & Sanitization ──────────────────────────────────────────────────
+
+const VALID_SCENARIOS: readonly Scenario[] = ['A', 'B', 'C', 'D'] as const;
+
+/** Securely validates and sanitizes input scenarios against prototype pollution. */
+export function sanitizeScenario(scenario: unknown): Scenario {
+  if (typeof scenario === 'string' && VALID_SCENARIOS.includes(scenario as Scenario)) {
+    return scenario as Scenario;
+  }
+  return 'A';
+}
+
+/** Anonymizes MAC addresses for GDPR / security compliance in logs and audit reports. */
+export function maskMacAddress(mac: string): string {
+  if (!mac || typeof mac !== 'string') return 'XX:XX:XX:XX:XX:XX';
+  const parts = mac.split(':');
+  if (parts.length < 6) return mac;
+  return `${parts[0]}:${parts[1]}:${parts[2]}:XX:XX:XX`;
+}
+
 // ─── Diagnostic engine ────────────────────────────────────────────────────────
 
 /** Run the deterministic rule-based diagnosis for the given scenario. */
 export function runDiagnosis(scenario: Scenario): DiagnosisResult {
-  return DIAGNOSIS_RESULTS[scenario];
+  const safeScenario = sanitizeScenario(scenario);
+  return DIAGNOSIS_RESULTS[safeScenario];
 }
 
 /** Return the baseline (before-action) metrics for a scenario. */
 export function getScenarioMetrics(scenario: Scenario): NetworkMetrics {
-  return SCENARIO_METRICS[scenario];
+  const safeScenario = sanitizeScenario(scenario);
+  return SCENARIO_METRICS[safeScenario];
 }
 
 /**
