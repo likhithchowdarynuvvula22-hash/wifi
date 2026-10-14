@@ -12,6 +12,7 @@ const navItems: { id: NavSection; label: string; icon: string; description: stri
   { id: 'devices', label: 'Devices', icon: '📱', description: 'Band & priority management' },
   { id: 'heatmap', label: 'Coverage Map', icon: '🗺', description: 'Room-level signal view' },
   { id: 'history', label: 'Action History', icon: '📋', description: 'Applied changes log' },
+  { id: 'testing', label: 'System Verification', icon: '🧪', description: 'Automated tests & benchmarks' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate }) => {

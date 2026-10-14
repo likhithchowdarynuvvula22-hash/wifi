@@ -17,12 +17,16 @@ import Diagnosis from './components/Diagnosis';
 import Devices from './components/Devices';
 import Heatmap from './components/Heatmap';
 import ActionHistory from './components/ActionHistory';
+import { TestRunner } from './components/TestRunner';
 
 let historyIdCounter = 0;
 
 const App: React.FC = () => {
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState<NavSection>('overview');
+
+  // ── Auto-Pilot Closed-Loop Autonomous Mode ──────────────────────────────────
+  const [autoPilot, setAutoPilot] = useState<boolean>(false);
 
   // ── Active scenario ──────────────────────────────────────────────────────────
   const [selectedScenario, setSelectedScenario] = useState<Scenario>('A');
@@ -190,6 +194,25 @@ const App: React.FC = () => {
     setActionHistory([]);
   }, []);
 
+  // When Auto-Pilot is enabled, automatically trigger closed-loop healing
+  React.useEffect(() => {
+    if (autoPilot && simulation.phase === 'idle') {
+      const timer = setTimeout(() => {
+        handleRunDiagnosis();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPilot, simulation.phase, handleRunDiagnosis]);
+
+  React.useEffect(() => {
+    if (autoPilot && simulation.phase === 'diagnosed') {
+      const timer = setTimeout(() => {
+        handleApplyAction();
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPilot, simulation.phase, handleApplyAction]);
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   return (
@@ -205,10 +228,43 @@ const App: React.FC = () => {
               {activeSection === 'devices' && 'Device Management'}
               {activeSection === 'heatmap' && 'Coverage Heatmap'}
               {activeSection === 'history' && 'Action History'}
+              {activeSection === 'testing' && 'Automated Testing & Verification'}
             </h1>
             <span className="page-subtitle">WiFiMind Intelligent Recovery Dashboard</span>
           </div>
-          <div className="top-bar-right">
+          <div className="top-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Auto-Pilot Autonomous Mode Toggle */}
+            <button
+              id="autopilot-toggle-btn"
+              onClick={() => setAutoPilot((prev) => !prev)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                border: autoPilot ? '1px solid #22c55e' : '1px solid rgba(255, 255, 255, 0.2)',
+                background: autoPilot ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                color: autoPilot ? '#4ade80' : '#cbd5e1',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Toggle Autonomous Closed-Loop Self-Healing"
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: autoPilot ? '#22c55e' : '#64748b',
+                  boxShadow: autoPilot ? '0 0 8px #22c55e' : 'none',
+                }}
+              />
+              Auto-Pilot: {autoPilot ? 'ACTIVE' : 'OFF'}
+            </button>
+
             <div className="scenario-indicator">
               <span className="scenario-indicator-dot" />
               Active: Scenario {selectedScenario}
@@ -273,6 +329,8 @@ const App: React.FC = () => {
               onClear={handleClearHistory}
             />
           )}
+
+          {activeSection === 'testing' && <TestRunner />}
         </div>
       </main>
     </div>

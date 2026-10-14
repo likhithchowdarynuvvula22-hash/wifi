@@ -1,5 +1,5 @@
 export type Scenario = 'A' | 'B' | 'C' | 'D';
-export type NavSection = 'overview' | 'diagnosis' | 'devices' | 'heatmap' | 'history';
+export type NavSection = 'overview' | 'diagnosis' | 'devices' | 'heatmap' | 'history' | 'testing';
 export type Band = '2.4GHz' | '5GHz';
 export type Priority = 'Critical' | 'High' | 'Normal' | 'Low';
 export type SignalStrength = 'Excellent' | 'Good' | 'Fair' | 'Poor';

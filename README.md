@@ -1,135 +1,149 @@
-# WiFiMind — Intelligent Wi-Fi Recovery 🧠📶
+# WiFiMind — Autonomous Wi-Fi Recovery & Self-Healing Engine 🧠📶
 
-> **Autonomous Self-Healing Wi-Fi Engine**: *Diagnose → Decide → Apply → Verify*
+> **Closed-Loop Autonomic Networking System**: *DIAGNOSE → DECIDE → APPLY → VERIFY*
 
-WiFiMind is a responsive, interactive web application and prototype AI decision-system designed to autonomously identify poor Wi-Fi performance, prescribe optimal corrective actions, execute simulated remediations, and verify measurable network improvements.
+WiFiMind is an interactive, autonomous network recovery system designed to continuously diagnose Wi-Fi degradation, evaluate multi-factor recovery policies using Explainable AI (XAI), simulate network remediations, and mathematically verify performance gains with automated safety rollbacks.
+
+Live Demo: **[https://wifi-ax4ptrhyn-likhithchowdarynuvvula22-7994s-projects.vercel.app](https://wifi-ax4ptrhyn-likhithchowdarynuvvula22-7994s-projects.vercel.app)**
 
 ---
 
-## 🚀 Key Highlights & Philosophy
+## 💡 Innovation & Novel Concept
 
-Traditional Wi-Fi troubleshooting is reactive, manual, and cryptic for ordinary users. WiFiMind introduces a closed-loop autonomic networking model:
+### 1. Closed-Loop Autonomic Control Architecture
+Traditional network troubleshooting is reactive, manual, and cryptic. WiFiMind implements the **MAPE-K (Monitor, Analyze, Plan, Execute, Knowledge)** autonomic loop:
 
 ```mermaid
-graph LR
-    A[🔍 Diagnose] --> B[⚖️ Decide]
-    B --> C[⚡ Apply]
-    C --> D[✅ Verify]
-    D -->|If not resolved| A
+graph TD
+    A[📡 Ingest RF Telemetry: RSSI, SNR, Airtime, Loss, Latency] --> B[🔍 Heuristic Root-Cause Diagnosis]
+    B --> C[⚖️ Explainable AI XAI Decision Matrix & Trade-Off Engine]
+    C --> D[⚡ Apply Optimal Network Remediation Policy]
+    D --> E[✅ Mathematical Telemetry Verification & Delta Audit]
+    E -->|If verification threshold unmet| F[🛡️ Immediate Safety Rollback & WAN Isolation]
+    E -->|If verified improved| G[🏆 Stable Baseline Updated]
 ```
 
-1. **Diagnose**: Ingests real-time RF telemetry (RSSI, SNR, channel utilization, packet loss, DNS latency, airtime distribution).
-2. **Decide**: Matches symptoms against diagnostic heuristics, ranking recovery actions with confidence scores and anticipated impact.
-3. **Apply**: Simulates corrective network changes (dynamic channel/DFS switching, 5GHz/6GHz band steering, QoS bandwidth throttling, Tx power boost).
-4. **Verify**: Measures post-action telemetry against baseline metrics and determines recovery success with full rollback support.
+### 2. Explainable AI (XAI) Decision Matrix
+Unlike black-box models, WiFiMind features an **XAI Multi-Factor Utility Function** that transparently calculates and ranks every candidate recovery policy before taking action:
+
+$$\text{Utility}(Action) = 0.40 \cdot \Delta\text{Throughput} + 0.35 \cdot \Delta\text{Latency} - 0.15 \cdot \text{DisruptionRisk} + 0.10 \cdot \text{SNR}$$
+
+- **Policy Ranking**: Compares the top recommendation against rejected alternatives (e.g., explaining why channel hopping is rejected if adjacent bands suffer co-channel overlap).
+- **Safety Verification Guard**: Guarantees zero false-positive Wi-Fi reconfigurations when root-cause telemetry indicates an upstream ISP/WAN outage.
+
+### 3. Continuous "Auto-Pilot" Self-Healing
+Enable the **Auto-Pilot** toggle in the dashboard header to activate continuous autonomous operation. WiFiMind constantly monitors network health, immediately detects degradation, triggers smart diagnosis, applies recovery actions, and verifies the resolution without human intervention.
 
 ---
 
-## 🛠️ Built-in Scenarios
+## 🧪 Comprehensive Automated Testing & Verification
 
-WiFiMind comes pre-loaded with realistic Wi-Fi degradation scenarios for live demonstration:
+WiFiMind includes a test suite covering unit heuristics, closed-loop integration, and mathematical RF physics.
 
-| Scenario | Root Cause | Primary Symptom | Automated Recommendation |
-| :--- | :--- | :--- | :--- |
-| **Scenario A** | **2.4 GHz Congestion & Co-Channel Interference** | High latency (85ms), 88% airtime utilization | Switch to DFS 5 GHz Channel 149 & steer high-traffic devices |
-| **Scenario B** | **Bandwidth Hogging & Airtime Starvation** | Video calls dropping, heavy background torrent/download | Enforce QoS throttling on hogging device (cap to 15 Mbps) |
-| **Scenario C** | **Dead Zone & Weak Signal Penetration** | Low RSSI (-78 dBm) in Bedroom/Patio | Boost Tx power to +22 dBm & activate Mesh Node steering |
-| **Scenario D** | **Upstream ISP / DNS Resolution Bottleneck** | High DNS lookup latency (420ms), RF metrics normal | Migrate Primary Gateway DNS to Cloudflare (1.1.1.1) |
+### Running Automated Tests via CLI
+Execute all 13 test suites with sub-second execution using [Vitest](https://vitest.dev/):
+
+```bash
+npm test
+```
+
+```text
+ ✓ src/engine/__tests__/diagnostics.test.ts (13 tests) 8ms
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+```
+
+### In-App Interactive Test Runner & Benchmark
+Judges and evaluators can inspect and trigger test suites directly inside the application:
+1. Open the **"System Verification"** tab in the sidebar.
+2. Click **"Re-Run All Tests"** to watch live in-browser execution with real-time assertions and millisecond duration benchmarks.
+3. Test suites verified:
+   - **Diagnostic Engine Classification**: Verifies root causes for all 4 scenarios with confidence $\ge 70\%$.
+   - **Closed-Loop Verification**: Validates deterministic metric improvements and follow-up guidance.
+   - **RF Physics Invariants**: Proves capacity conservation (QoS redistributes airtime without phantom bandwidth) and 2D free-space path loss equations.
+   - **Safety Rollback Integrity**: Verifies state restoration and zero false-positive WAN isolation.
+4. **Interactive Fault & Chaos Injection Sandbox**: Click **"Inject RF Burst Noise"** or **"Inject Airtime Jitter"** to test live engine resilience.
+5. **Export Audit Report**: Download a JSON report of all test assertions with a cryptographic timestamp.
 
 ---
 
-## 📱 Interactive Modules
+## 🛠️ Built-in Failure Scenarios
 
-- **📊 Network Overview**: Real-time health score, signal quality, active scenario switcher, and quick-status metrics.
-- **🔬 Smart Diagnosis**: Deep telemetry inspector, root-cause diagnosis engine, recommended action breakdown, and one-click **"Apply Action"** simulation.
-- **📶 Interactive Coverage Heatmap**: Visual floor plan (Living Room, Office, Bedroom, Kitchen, Patio) with live RSSI signal strength, throughput ratings, and Access Point placement.
-- **💻 Connected Devices**: Granular device inventory (Laptops, Smart TVs, Phones, IoT) displaying MAC addresses, band allocations, real-time consumption, and QoS priorities.
-- **📜 Action History & Audit Log**: Chronological log of applied remediations, outcome verification (Before vs After comparisons), and one-click **Rollback** functionality.
+| Scenario | Root Cause | Baseline Symptoms | Applied Autonomous Policy | Outcome |
+| :--- | :--- | :--- | :--- | :--- |
+| **Scenario A** | **2.4 GHz Channel Congestion** | Latency 145ms, 88% airtime utilization | Non-overlapping channel switch (Ch 6/11) + 5 GHz band steering | **Improved**: Latency $\rightarrow$ 38ms, Ch Util $\rightarrow$ 41% |
+| **Scenario B** | **Weak Signal & Path Loss** | Throughput 8 Mbps, 6.1% packet loss | Centralized AP repositioning + Mesh Node expansion | **Partially Improved**: Residual kitchen dead-zone flagged |
+| **Scenario C** | **Bandwidth Monopolization** | 1 Device eating 77% capacity, latency 95ms | QoS Priority Scheduling (Critical Work, Low Background) | **Improved**: Latency $\rightarrow$ 22ms, Fair-share restored |
+| **Scenario D** | **Upstream ISP Gateway Failure** | 100% WAN drop, Local Wi-Fi healthy | **Safety Lock**: Do NOT modify local RF; isolate modem/ISP link | **Not Improved (Protected)**: Prevents destructive RF churn |
 
 ---
 
-## 💻 Tech Stack
+## 💻 Tech Stack & Architecture
 
-- **Framework**: [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Styling**: Vanilla CSS Design System with dark glassmorphism, fluid typography, and micro-animations.
+- **Frontend & UI**: React 19, TypeScript, Pure Modern CSS (Glassmorphism & Cyberpunk Dashboard Aesthetics)
+- **Icons**: Lucide React
+- **Build Engine**: Vite 8
+- **Testing Framework**: Vitest (CLI runner + Custom in-browser test harness)
+- **Deployment**: Vercel Global Edge CDN
 
 ---
 
 ## 🏁 Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18.0.0 or higher recommended)
-- [npm](https://www.npmjs.com/) (version 9 or higher)
+- Node.js 18+ & npm 9+
 
-### Installation
-
-1. Clone or navigate to the project directory:
-   ```bash
-   cd c:\hackthon
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-### Running Locally
-
-Start the local development server:
+### Installation & Run
 ```bash
+# Clone the repository
+git clone https://github.com/likhithchowdarynuvvula22-hash/wifi.git
+cd wifi
+
+# Install dependencies
+npm install
+
+# Run automated tests
+npm test
+
+# Start local development server
 npm run dev
 ```
 
-Open your browser and navigate to:
-```
-http://localhost:5173
-```
+Visit `http://localhost:5173` in your browser.
 
 ### Production Build
-
-To build the static production bundle:
 ```bash
 npm run build
 ```
-
-To preview the production build locally:
-```bash
-npm run preview
-```
+Builds statically to `dist/` with full TypeScript type-checking.
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Organization
 
 ```text
 ├── src/
 │   ├── components/
-│   │   ├── Overview.tsx         # Dashboard overview, health metric cards, and scenario selector
-│   │   ├── Diagnosis.tsx        # Telemetry inspection, AI recommendations, and apply simulation
-│   │   ├── Heatmap.tsx          # Floor plan coverage map with room-by-room RF visualization
-│   │   ├── Devices.tsx          # Client device management, bandwidth consumption, and QoS tags
-│   │   ├── ActionHistory.tsx    # Verification results, audit log, and rollback triggers
+│   │   ├── Overview.tsx         # Real-time health metrics, scenario switcher, & network telemetry
+│   │   ├── Diagnosis.tsx        # Smart Diagnosis, Explainable AI (XAI) Matrix, & Apply Simulation
+│   │   ├── Devices.tsx          # Connected client inventory, Band Steering, & QoS prioritization
+│   │   ├── Heatmap.tsx          # 2D Euclidean floor plan with signal attenuation physics
+│   │   ├── ActionHistory.tsx    # Chronological audit log with Before vs After metric deltas
+│   │   ├── TestRunner.tsx       # In-App Automated Test Runner, Chaos Sandbox, & JSON Exporter
 │   │   └── Sidebar.tsx          # Navigation sidebar with status badges
 │   ├── engine/
-│   │   └── diagnostics.ts       # Core heuristic decision engine and scenario generator
+│   │   ├── diagnostics.ts       # Closed-loop decision heuristics & RF mathematical models
+│   │   ├── testRunner.ts        # In-browser deterministic test harness and assertion runner
+│   │   └── __tests__/
+│   │       └── diagnostics.test.ts # Vitest automated test suite (13 unit/integration tests)
 │   ├── data/
-│   │   └── mockData.ts          # Baseline network topology and default states
+│   │   └── mockData.ts          # Baseline topology, device profiles, & scenario metrics
 │   ├── types/
-│   │   └── index.ts             # TypeScript definitions for metrics, scenarios, and actions
-│   ├── App.tsx                  # Root state coordinator and application shell
-│   ├── index.css                # Global design system, CSS variables, and layout styles
+│   │   └── index.ts             # Strict TypeScript definitions
+│   ├── App.tsx                  # Root state coordinator & Auto-Pilot autonomous agent
+│   ├── index.css                # Global design system & theme variables
 │   └── main.tsx                 # Application entry point
-├── public/                      # Static assets and icons
-├── package.json                 # Dependencies and build scripts
-└── vite.config.ts               # Vite configuration
+├── package.json                 # Scripts and dependencies
+├── vercel.json                  # SPA routing configuration for Vercel
+└── vite.config.ts               # Vite bundler configuration
 ```
-
----
-
-## 🏆 Hackathon Notes
-
-- **Unified Single Source of Truth**: All tabs react instantaneously to scenario switches and applied actions.
-- **Realistic Verification**: Applying an action updates device states, improves the health score, clears congestion warnings, and creates an audit record with before/after metric deltas.
-- **Safety First**: Every automated action supports one-click rollback if real-world verification thresholds are not met.
