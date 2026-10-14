@@ -1,0 +1,282 @@
+import React, { useState, useCallback, useRef } from 'react';
+import type {
+  Scenario, NavSection, SimulationState,
+  DiagnosisResult, Device, Band, Priority,
+  ActionHistoryEntry, NetworkMetrics, Room,
+} from './types';
+import {
+  SCENARIO_METRICS, DEVICES, INITIAL_ROOMS,
+} from './data/mockData';
+import {
+  runDiagnosis, applyAction,
+  recalculateDeviceMetrics, computeOptimizedRooms,
+} from './engine/diagnostics';
+import Sidebar from './components/Sidebar';
+import Overview from './components/Overview';
+import Diagnosis from './components/Diagnosis';
+import Devices from './components/Devices';
+import Heatmap from './components/Heatmap';
+import ActionHistory from './components/ActionHistory';
+
+let historyIdCounter = 0;
+
+const App: React.FC = () => {
+  // ── Navigation ──────────────────────────────────────────────────────────────
+  const [activeSection, setActiveSection] = useState<NavSection>('overview');
+
+  // ── Active scenario ──────────────────────────────────────────────────────────
+  const [selectedScenario, setSelectedScenario] = useState<Scenario>('A');
+
+  // ── Simulation workflow ──────────────────────────────────────────────────────
+  const [simulation, setSimulation] = useState<SimulationState>({ phase: 'idle' });
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
+
+  // ── Devices (global, mutable) ────────────────────────────────────────────────
+  const [devices, setDevices] = useState<Device[]>(DEVICES);
+
+  // ── Heatmap rooms (global state so reset works) ──────────────────────────────
+  const [currentRooms, setCurrentRooms] = useState<Room[]>(INITIAL_ROOMS);
+  const [optimizedRooms, setOptimizedRooms] = useState<Room[] | null>(null);
+
+  // ── Action history ───────────────────────────────────────────────────────────
+  const [actionHistory, setActionHistory] = useState<ActionHistoryEntry[]>([]);
+
+  // ── Snapshot of "before" metrics (captured at diagnosis time) ─────────────────
+  const beforeMetricsRef = useRef<NetworkMetrics>(SCENARIO_METRICS[selectedScenario]);
+
+  // ── Derive current displayed metrics ─────────────────────────────────────────
+  // After a completed simulation the dashboard shows the post-intervention values.
+  const baseMetrics = SCENARIO_METRICS[selectedScenario];
+  const currentMetrics: NetworkMetrics =
+    simulation.phase === 'complete' && simulation.afterMetrics
+      ? {
+          ...baseMetrics,
+          healthScore:
+            simulation.afterMetrics.healthScore ?? baseMetrics.healthScore,
+          throughput:
+            simulation.afterMetrics.throughput ?? baseMetrics.throughput,
+          latency:
+            simulation.afterMetrics.latency ?? baseMetrics.latency,
+          packetLoss:
+            simulation.afterMetrics.packetLoss ?? baseMetrics.packetLoss,
+          channelUtilization:
+            simulation.afterMetrics.channelUtilization ?? baseMetrics.channelUtilization,
+        }
+      : baseMetrics;
+
+  // ── Scenario change: reset simulation so all pages start fresh ───────────────
+  const handleScenarioChange = useCallback((s: Scenario) => {
+    setSelectedScenario(s);
+    setSimulation({ phase: 'idle' });
+    setDiagnosis(null);
+    // Do NOT reset devices/heatmap — user may want to inspect changes across scenarios
+  }, []);
+
+  // ── Full reset ────────────────────────────────────────────────────────────────
+  const handleFullReset = useCallback(() => {
+    setSimulation({ phase: 'idle' });
+    setDiagnosis(null);
+    setCurrentRooms(INITIAL_ROOMS);
+    setOptimizedRooms(null);
+    setDevices(DEVICES);
+  }, []);
+
+  // ── Run diagnosis ─────────────────────────────────────────────────────────────
+  const handleRunDiagnosis = useCallback(() => {
+    // Capture before-metrics at the time diagnosis is triggered,
+    // using current scenario baseline (not any lingering afterMetrics)
+    beforeMetricsRef.current = SCENARIO_METRICS[selectedScenario];
+
+    setSimulation({ phase: 'diagnosing' });
+    setActiveSection('diagnosis');
+
+    setTimeout(() => {
+      const result = runDiagnosis(selectedScenario);
+      setDiagnosis(result);
+      setSimulation({ phase: 'diagnosed' });
+    }, 2000);
+  }, [selectedScenario]);
+
+  // ── Apply action ─────────────────────────────────────────────────────────────
+  const handleApplyAction = useCallback(() => {
+    if (!diagnosis) return;
+
+    // Capture the baseline before we mutate anything
+    const before = beforeMetricsRef.current;
+
+    setSimulation((prev) => ({ ...prev, phase: 'applying' }));
+
+    setTimeout(() => {
+      setSimulation((prev) => ({ ...prev, phase: 'verifying' }));
+
+      setTimeout(() => {
+        const { afterMetrics, verificationStatus, nextStep } = applyAction(selectedScenario);
+
+        setSimulation({
+          phase: 'complete',
+          beforeMetrics: before,
+          afterMetrics,
+          verificationStatus,
+          nextStep,
+        });
+
+        // Record in history
+        const entry: ActionHistoryEntry = {
+          id: String(++historyIdCounter),
+          timestamp: new Date(),
+          scenario: selectedScenario,
+          action: diagnosis.recommendedAction,
+          status: verificationStatus,
+          beforeMetrics: {
+            healthScore: before.healthScore,
+            throughput: before.throughput,
+            latency: before.latency,
+            packetLoss: before.packetLoss,
+            channelUtilization: before.channelUtilization,
+          },
+          afterMetrics,
+          nextStep,
+        };
+
+        setActionHistory((prev) => [...prev, entry]);
+      }, 1500);
+    }, 1500);
+  }, [diagnosis, selectedScenario]);
+
+  // ── Reset simulation (Diagnosis panel button) ─────────────────────────────────
+  const handleResetSimulation = useCallback(() => {
+    setSimulation({ phase: 'idle' });
+    setDiagnosis(null);
+  }, []);
+
+  // ── Device: band reassignment ─────────────────────────────────────────────────
+  const handleBandReassign = useCallback((deviceId: string, newBand: Band) => {
+    setDevices((prev) => {
+      const updated = prev.map((d) =>
+        d.id === deviceId
+          ? { ...d, band: newBand, bandAssigned: newBand === d.recommendedBand }
+          : d,
+      );
+      // Recalculate throughput for all devices given new band assignments
+      return recalculateDeviceMetrics(updated);
+    });
+  }, []);
+
+  // ── Device: priority change ───────────────────────────────────────────────────
+  const handlePriorityChange = useCallback((deviceId: string, priority: Priority) => {
+    setDevices((prev) => {
+      const updated = prev.map((d) =>
+        d.id === deviceId ? { ...d, priority } : d,
+      );
+      // Recalculate throughput given new QoS weights
+      return recalculateDeviceMetrics(updated);
+    });
+  }, []);
+
+  // ── Heatmap: simulate router reposition ───────────────────────────────────────
+  const handleSimulateRouterReposition = useCallback(() => {
+    const optimized = computeOptimizedRooms(currentRooms);
+    setOptimizedRooms(optimized);
+  }, [currentRooms]);
+
+  // ── Heatmap: reset to initial coverage ───────────────────────────────────────
+  const handleResetHeatmap = useCallback(() => {
+    setCurrentRooms(INITIAL_ROOMS);
+    setOptimizedRooms(null);
+  }, []);
+
+  // ── History: clear ────────────────────────────────────────────────────────────
+  const handleClearHistory = useCallback(() => {
+    setActionHistory([]);
+  }, []);
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  return (
+    <div className="app">
+      <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
+      <main className="main-content">
+        {/* Top bar */}
+        <header className="top-bar">
+          <div className="top-bar-left">
+            <h1 className="page-title">
+              {activeSection === 'overview' && 'Network Overview'}
+              {activeSection === 'diagnosis' && 'Smart Diagnosis'}
+              {activeSection === 'devices' && 'Device Management'}
+              {activeSection === 'heatmap' && 'Coverage Heatmap'}
+              {activeSection === 'history' && 'Action History'}
+            </h1>
+            <span className="page-subtitle">WiFiMind Intelligent Recovery Dashboard</span>
+          </div>
+          <div className="top-bar-right">
+            <div className="scenario-indicator">
+              <span className="scenario-indicator-dot" />
+              Active: Scenario {selectedScenario}
+            </div>
+            {simulation.phase === 'complete' && (
+              <button
+                id="global-reset-btn"
+                className="reset-btn"
+                onClick={handleFullReset}
+                title="Reset simulation and restore all defaults"
+              >
+                ↺ Reset All
+              </button>
+            )}
+            <div className="sim-warning">⚠ SIMULATED — No Real Hardware</div>
+          </div>
+        </header>
+
+        <div className="content-area">
+          {activeSection === 'overview' && (
+            <Overview
+              metrics={currentMetrics}
+              selectedScenario={selectedScenario}
+              onScenarioChange={handleScenarioChange}
+              onRunDiagnosis={handleRunDiagnosis}
+              simPhase={simulation.phase}
+            />
+          )}
+
+          {activeSection === 'diagnosis' && (
+            <Diagnosis
+              diagnosis={diagnosis}
+              simulation={simulation}
+              beforeMetrics={beforeMetricsRef.current}
+              selectedScenario={selectedScenario}
+              onApplyAction={handleApplyAction}
+              onReset={handleResetSimulation}
+            />
+          )}
+
+          {activeSection === 'devices' && (
+            <Devices
+              devices={devices}
+              scenario={selectedScenario}
+              onBandReassign={handleBandReassign}
+              onPriorityChange={handlePriorityChange}
+            />
+          )}
+
+          {activeSection === 'heatmap' && (
+            <Heatmap
+              currentRooms={currentRooms}
+              optimizedRooms={optimizedRooms}
+              onSimulate={handleSimulateRouterReposition}
+              onReset={handleResetHeatmap}
+            />
+          )}
+
+          {activeSection === 'history' && (
+            <ActionHistory
+              entries={actionHistory}
+              onClear={handleClearHistory}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default App;
